@@ -265,10 +265,7 @@ open class Repeater: Equatable {
 	private func destroyTimer() {
 		self.timer?.setEventHandler(handler: nil)
 		self.timer?.cancel()
-
-		if state == .paused || state == .finished {
-			self.timer?.resume()
-		}
+        self.timer = nil
 	}
 
 	/// Create and schedule a timer that will call `handler` once after the specified time.
