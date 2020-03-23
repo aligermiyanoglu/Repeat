@@ -261,15 +261,17 @@ open class Repeater: Equatable {
 		return timer
 	}
 
-	/// Destroy current timer
-	private func destroyTimer() {
-		self.timer?.setEventHandler(handler: nil)
-		self.timer?.cancel()
-
-		if state == .paused || state == .finished {
-			self.timer?.resume()
-		}
-	}
+    /// Destroy current timer
+    private func destroyTimer() {
+        self.timer?.cancel()
+        resume()
+        self.timer?.setEventHandler(handler: nil)
+        /*
+         If the timer is suspended, calling cancel without resuming
+         triggers a crash. This is documented here https://forums.developer.apple.com/thread/15902
+         */
+        self.timer = nil
+    }
 
 	/// Create and schedule a timer that will call `handler` once after the specified time.
 	///
@@ -335,8 +337,7 @@ open class Repeater: Equatable {
 		self.state = .paused
 
 		if restart {
-			self.timer?.resume()
-			self.state = .running
+			resume()
 		}
 	}
 
@@ -350,8 +351,7 @@ open class Repeater: Equatable {
 		// If timer has not finished its lifetime we want simply
 		// restart it from the current state.
 		guard self.state.isFinished == true else {
-			self.state = .running
-			self.timer?.resume()
+			resume()
 			return true
 		}
 
@@ -370,6 +370,26 @@ open class Repeater: Equatable {
 
 		return self.setPause(from: self.state)
 	}
+    
+    /// Resume a running timer. If timer is already resumed (running) it does nothing
+    private func resume() {
+        if state == .running {
+            return
+        }
+        
+        state = .running
+        
+    }
+    
+    /// Suspend a timer. If timer is already suspended (paused or finished) it does nothing
+    
+    private func suspend() {
+        if state == .paused || state == .finished {
+            return
+        }
+        state = .paused
+        timer?.suspend()
+    }
 
 	/// Pause a running timer optionally changing the state with regard to the current state.
 	///
@@ -383,7 +403,7 @@ open class Repeater: Equatable {
 			return false
 		}
 
-		self.timer?.suspend()
+		suspend()
 		self.state = newState
 
 		return true
