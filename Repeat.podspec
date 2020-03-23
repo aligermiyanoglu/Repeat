@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
   s.license      = { :type => "MIT", :file => "LICENSE" }
   s.author             = { "Ali" => "ali@gmail.com" }
   s.social_media_url   = "http://twitter.com/alililiiii"
-  s.ios.deployment_target = "10.0"
+  s.ios.deployment_target = "9.0"
   s.osx.deployment_target = "10.14.4"
   s.tvos.deployment_target = "12.2"
   s.watchos.deployment_target = "5.2"
